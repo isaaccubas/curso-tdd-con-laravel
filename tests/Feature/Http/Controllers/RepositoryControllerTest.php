@@ -68,6 +68,28 @@ class RepositoryControllerTest extends TestCase
     }
 
     /**
+     *  Valido que un usuario no pueda actualizar un repo que no sea suyo
+     * @return void
+     */
+
+    public function test_update_policy()
+    {
+        $user = User::factory()->create(); //user id = 1
+
+        $repository = Repository::factory()->create(); //user id = 2
+
+        $data = [
+            'url' => $this->faker->url,
+            'description' => $this->faker->text,
+        ];
+
+        $this
+            ->actingAs($user)
+            ->put("repositories/$repository->id", $data)
+            ->assertStatus(403);
+    }
+
+    /**
      * Validamos si el formulario viene vacio
      *
      * @return void
@@ -101,9 +123,9 @@ class RepositoryControllerTest extends TestCase
 
     public function test_destroy()
     {
-        $repository = Repository::factory()->create();
-
         $user = User::factory()->create();
+        $repository = Repository::factory()->create(['user_id' => $user->id]);
+
 
         //Inicia sesión con el usuario creado
         $this
@@ -119,26 +141,21 @@ class RepositoryControllerTest extends TestCase
         ]);
     }
 
-    /**
-     * Intentamos actualizar un repositorio de otro usuario
-     *
-     * @return void
-     */
-    public function test_update_policy()
+    public function test_destroy_policy()
     {
-        $user = User::factory()->create(); //user id = 1
 
-        $repository = Repository::factory()->create(); //user id = 2
+        $user = User::factory()->create(); //id = 1
+        $repository = Repository::factory()->create(); //id = 2
 
-        $data = [
-            'url' => $this->faker->url,
-            'description' => $this->faker->text,
-        ];
-
+        //Inicia sesión con el usuario creado
         $this
             ->actingAs($user)
-            ->put("repositories/$repository->id", $data)
+            ->delete("repositories/$repository->id")
             ->assertStatus(403);
 
     }
+
+
+
+
 }

@@ -36,8 +36,12 @@ class RepositoryController extends Controller
         return redirect()->route('repositories.edit', $repository);
     }
 
-    public function destroy(Repository $repository)
+    public function destroy(Request $request, Repository $repository)
     {
+        //Si un usuario intenta editar un repositorio que no es suyo
+        if ($request->user()->id != $repository->user_id) {
+            abort(403);
+        }
 
         $repository->delete();
 
