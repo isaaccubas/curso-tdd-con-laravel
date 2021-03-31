@@ -26,6 +26,11 @@ class RepositoryController extends Controller
             'description' => 'required',
         ]);
 
+        //Si un usuario intenta editar un repositorio que no es suyo
+        if($request->user()->id != $repository->user_id){
+            abort(403);
+        }
+
         $repository->update($request->all());
 
         return redirect()->route('repositories.edit', $repository);

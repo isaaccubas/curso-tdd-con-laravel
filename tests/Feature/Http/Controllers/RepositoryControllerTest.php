@@ -47,15 +47,15 @@ class RepositoryControllerTest extends TestCase
 
     public function test_update()
     {
-        $repository = Repository::factory()->create();
+        $user = User::factory()->create();
+
+        $repository = Repository::factory()->create(['user_id' => $user->id]);
         //Probamos el registro del formulario para crear el repositorio
         //Datos del formulario
         $data = [
             'url' => $this->faker->url,
             'description' => $this->faker->text,
         ];
-
-        $user = User::factory()->create();
 
         //Inicia sesión con el usuario creado
         $this
@@ -117,5 +117,28 @@ class RepositoryControllerTest extends TestCase
             'url' => $repository->url,
             'description' => $repository->description,
         ]);
+    }
+
+    /**
+     * Intentamos actualizar un repositorio de otro usuario
+     *
+     * @return void
+     */
+    public function test_update_policy()
+    {
+        $user = User::factory()->create(); //user id = 1
+
+        $repository = Repository::factory()->create(); //user id = 2
+
+        $data = [
+            'url' => $this->faker->url,
+            'description' => $this->faker->text,
+        ];
+
+        $this
+            ->actingAs($user)
+            ->put("repositories/$repository->id", $data)
+            ->assertStatus(403);
+
     }
 }
