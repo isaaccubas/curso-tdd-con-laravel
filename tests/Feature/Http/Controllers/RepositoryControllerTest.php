@@ -4,6 +4,7 @@ namespace Tests\Feature\Http\Controllers;
 
 use Tests\TestCase;
 use App\Models\User;
+use App\Models\Repository;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -39,6 +40,28 @@ class RepositoryControllerTest extends TestCase
             ->actingAs($user)
             ->post('repositories', $data)
             ->assertRedirect('repositories');
+
+        //Compruebo si se guardo en BD
+        $this->assertDatabaseHas('repositories', $data);
+    }
+
+    public function test_update()
+    {
+        $repository = Repository::factory()->create();
+        //Probamos el registro del formulario para crear el repositorio
+        //Datos del formulario
+        $data = [
+            'url' => $this->faker->url,
+            'description' => $this->faker->text,
+        ];
+
+        $user = User::factory()->create();
+
+        //Inicia sesión con el usuario creado
+        $this
+            ->actingAs($user)
+            ->put("repositories/$repository->id", $data)
+            ->assertRedirect("repositories/$repository->id/edit");
 
         //Compruebo si se guardo en BD
         $this->assertDatabaseHas('repositories', $data);
