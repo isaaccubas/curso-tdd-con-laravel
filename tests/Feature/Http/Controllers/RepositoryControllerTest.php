@@ -66,4 +66,36 @@ class RepositoryControllerTest extends TestCase
         //Compruebo si se guardo en BD
         $this->assertDatabaseHas('repositories', $data);
     }
+
+    /**
+     * Validamos si el formulario viene vacio
+     *
+     * @return void
+     */
+    public function test_validate_store()
+    {
+        //Validamos si el formulario llega vacio
+        $user = User::factory()->create();
+
+        $this
+            ->actingAs($user)
+            ->post('repositories', [])
+            ->assertStatus(302)
+            ->assertSessionHasErrors(['url', 'description']);
+    }
+
+    public function test_validate_update()
+    {
+        $repository = Repository::factory()->create();
+
+        $user = User::factory()->create();
+
+        //Inicia sesión con el usuario creado
+        $this
+            ->actingAs($user)
+            ->put("repositories/$repository->id", [])
+            ->assertStatus(302)
+            ->assertSessionHasErrors(['url', 'description']);
+
+    }
 }
