@@ -52,6 +52,22 @@ class RepositoryControllerTest extends TestCase
             ->assertSee($repository->url);
     }
 
+    /**
+     * Comprobamos si el repositorio se puede acceder al formulario de creacion correctamente
+     *
+     * @return void
+     */
+    public function test_create()
+    {
+        $user = User::factory()->create();
+
+        //Inicia sesión con el usuario creado
+        $this
+            ->actingAs($user)
+            ->get("repositories/create")
+            ->assertStatus(200);
+    }
+
     public function test_store()
     {
         //Probamos el registro del formulario para crear el repositorio
