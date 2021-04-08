@@ -183,6 +183,79 @@ class RepositoryControllerTest extends TestCase
 
     }
 
+    /**
+     * Comprobamos si el repositorio se visualiza correctamente
+     *
+     * @return void
+     */
+    public function test_show()
+    {
+        $user = User::factory()->create();
+
+        $repository = Repository::factory()->create(['user_id' => $user->id]);
+
+        //Inicia sesión con el usuario creado
+        $this
+            ->actingAs($user)
+            ->get("repositories/$repository->id")
+            ->assertStatus(200);
+
+    }
+
+    /**
+     *  Valido que un usuario no pueda ver un repo que no sea suyo
+     * @return void
+     */
+
+    public function test_show_policy()
+    {
+        $user = User::factory()->create(); //user id = 1
+
+        $repository = Repository::factory()->create(); //user id = 2
+
+        $this
+            ->actingAs($user)
+            ->get("repositories/$repository->id")
+            ->assertStatus(403);
+    }
+
+    /**
+     * Comprobamos si el repositorio se puede editar correctamente
+     *
+     * @return void
+     */
+    public function test_edit()
+    {
+        $user = User::factory()->create();
+
+        $repository = Repository::factory()->create(['user_id' => $user->id]);
+
+        //Inicia sesión con el usuario creado
+        $this
+            ->actingAs($user)
+            ->get("repositories/$repository->id/edit")
+            ->assertStatus(200)
+            ->assertSee($repository->description)
+            ->assertSee($repository->url);
+    }
+
+    /**
+     *  Valido que un usuario no pueda editar un repo que no sea suyo
+     * @return void
+     */
+
+    public function test_edit_policy()
+    {
+        $user = User::factory()->create(); //user id = 1
+
+        $repository = Repository::factory()->create(); //user id = 2
+
+        $this
+            ->actingAs($user)
+            ->get("repositories/$repository->id/edit")
+            ->assertStatus(403);
+    }
+
 
 
 

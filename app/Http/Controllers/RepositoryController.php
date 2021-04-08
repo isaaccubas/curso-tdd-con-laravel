@@ -13,6 +13,16 @@ class RepositoryController extends Controller
         ]);
     }
 
+    public function show(Request $request, Repository $repository)
+    {
+        //Si un usuario intenta editar un repositorio que no es suyo
+        if ($request->user()->id != $repository->user_id) {
+            abort(403);
+        }
+
+        return view('repositories.show', compact('repository'));
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -23,6 +33,16 @@ class RepositoryController extends Controller
         $request->user()->repositories()->create($request->all());
 
         return redirect()->route('repositories.index');
+    }
+
+    public function edit(Request $request, Repository $repository)
+    {
+        //Si un usuario intenta editar un repositorio que no es suyo
+        if ($request->user()->id != $repository->user_id) {
+            abort(403);
+        }
+
+        return view('repositories.edit', compact('repository'));
     }
 
     public function update(Request $request, Repository $repository)
