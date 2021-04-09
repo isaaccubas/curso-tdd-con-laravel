@@ -4,21 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Repository;
 use Illuminate\Http\Request;
+use App\Http\Requests\RepositoryRequest;
 
 class RepositoryController extends Controller
 {
-    public function index(Request $request) {
+    public function index() {
         return view('repositories.index', [
-            'repositories' => $request->user()->repositories
+            'repositories' => auth()->user()->repositories
         ]);
     }
 
     public function show(Request $request, Repository $repository)
     {
         //Si un usuario intenta editar un repositorio que no es suyo
-        if ($request->user()->id != $repository->user_id) {
-            abort(403);
-        }
+        $this->authorize('pass', $repository);
 
         return view('repositories.show', compact('repository'));
     }
@@ -28,51 +27,37 @@ class RepositoryController extends Controller
         return view('repositories.create');
     }
 
-    public function store(Request $request)
+    public function store(RepositoryRequest $request)
     {
-        $request->validate([
-            'url' => 'required',
-            'description' => 'required',
-        ]);
 
         $request->user()->repositories()->create($request->all());
 
         return redirect()->route('repositories.index');
     }
 
-    public function edit(Request $request, Repository $repository)
+    public function edit(Repository $repository)
     {
         //Si un usuario intenta editar un repositorio que no es suyo
-        if ($request->user()->id != $repository->user_id) {
-            abort(403);
-        }
+        $this->authorize('pass', $repository);
 
         return view('repositories.edit', compact('repository'));
     }
 
-    public function update(Request $request, Repository $repository)
+    public function update(RepositoryRequest $request, Repository $repository)
     {
-        $request->validate([
-            'url' => 'required',
-            'description' => 'required',
-        ]);
 
         //Si un usuario intenta editar un repositorio que no es suyo
-        if($request->user()->id != $repository->user_id){
-            abort(403);
-        }
+        $this->authorize('pass', $repository);
 
         $repository->update($request->all());
 
         return redirect()->route('repositories.edit', $repository);
     }
 
-    public function destroy(Request $request, Repository $repository)
+    public function destroy(Repository $repository)
     {
-        //Si un usuario intenta editar un repositorio que no es suyo
-        if ($request->user()->id != $repository->user_id) {
-            abort(403);
-        }
+        //Si un usuario intenta editar un repositorio que no es suyo ver fichero de politica
+        $this->authorize('pass', $repository);
 
         $repository->delete();
 
